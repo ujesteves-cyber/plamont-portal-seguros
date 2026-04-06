@@ -14,13 +14,15 @@ export default async function HomePage() {
     const { eq } = await import("drizzle-orm");
 
     const [user] = await db
-      .select({ role: users.role })
+      .select({ role: users.role, isApproved: users.isApproved })
       .from(users)
       .where(eq(users.clerkId, userId));
 
-    const role = user?.role ?? "corretor";
+    if (!user || !user.isApproved) {
+      redirect("/aguardando-aprovacao");
+    }
 
-    switch (role) {
+    switch (user.role) {
       case "diretor":
       case "analista":
         redirect("/dashboard");
@@ -28,6 +30,6 @@ export default async function HomePage() {
         redirect("/c/painel");
     }
   } catch {
-    redirect("/dashboard");
+    redirect("/aguardando-aprovacao");
   }
 }

@@ -67,6 +67,7 @@ export const users = pgTable("users", {
   email: varchar("email", { length: 255 }).notNull(),
   name: varchar("name", { length: 255 }),
   role: userRoleEnum("role").notNull().default("corretor"),
+  isApproved: boolean("is_approved").notNull().default(false),
   cnpj: varchar("cnpj", { length: 20 }),
   companyName: varchar("company_name", { length: 255 }),
   phone: varchar("phone", { length: 20 }),

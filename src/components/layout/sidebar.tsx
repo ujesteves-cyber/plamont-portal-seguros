@@ -9,6 +9,7 @@ import {
   FileText,
   Building2,
   Send,
+  Users,
 } from "lucide-react";
 import {
   Sidebar,
@@ -27,6 +28,7 @@ const diretorLinks = [
   { href: "/frota", label: "Frota", icon: Truck },
   { href: "/editais", label: "Editais", icon: FileText },
   { href: "/corretoras", label: "Corretoras", icon: Building2 },
+  { href: "/usuarios", label: "Usuários", icon: Users },
 ];
 
 const analistaLinks = [
