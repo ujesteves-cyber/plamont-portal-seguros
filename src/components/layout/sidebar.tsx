@@ -27,8 +27,8 @@ const adminLinks = [
 ];
 
 const insurerLinks = [
-  { href: "/painel", label: "Painel", icon: LayoutDashboard },
-  { href: "/editais", label: "Editais Abertos", icon: FileText },
+  { href: "/s/painel", label: "Painel", icon: LayoutDashboard },
+  { href: "/s/editais", label: "Editais Abertos", icon: FileText },
 ];
 
 export function AppSidebar({ role }: { role: "admin" | "corretor" | "seguradora" }) {

@@ -51,7 +51,7 @@ export function PropostaUpload({
       validity: formData.get("validity") as string,
     });
 
-    router.push("/editais");
+    router.push("/s/editais");
   }
 
   return (
