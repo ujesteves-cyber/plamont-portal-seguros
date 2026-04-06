@@ -18,6 +18,9 @@ export async function createTender(data: {
   coverageRequired: string;
   deadline: string;
   vehicleIds: number[];
+  editalPdfUrl?: string;
+  editalPdfFileName?: string;
+  attachments?: { url: string; fileName: string }[];
 }) {
   const [tender] = await db
     .insert(tenders)
@@ -26,6 +29,9 @@ export async function createTender(data: {
       description: data.description,
       insuranceType: data.insuranceType as any,
       coverageRequired: data.coverageRequired,
+      editalPdfUrl: data.editalPdfUrl,
+      editalPdfFileName: data.editalPdfFileName,
+      attachments: data.attachments,
       deadline: new Date(data.deadline),
       status: "Rascunho",
     })

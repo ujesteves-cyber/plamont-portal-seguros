@@ -16,6 +16,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { INSURANCE_TYPES } from "@/lib/constants";
 import { createTender } from "@/lib/actions/editais";
+import { Upload, X } from "lucide-react";
 
 type Vehicle = {
   id: number;
@@ -29,6 +30,52 @@ export function EditalForm({ vehicles }: { vehicles: Vehicle[] }) {
   const [selectedVehicles, setSelectedVehicles] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [insuranceType, setInsuranceType] = useState("Frota");
+  const [editalPdfUrl, setEditalPdfUrl] = useState("");
+  const [editalPdfFileName, setEditalPdfFileName] = useState("");
+  const [attachments, setAttachments] = useState<{ url: string; fileName: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleEditalPdfUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url, fileName } = await res.json();
+      setEditalPdfUrl(url);
+      setEditalPdfFileName(fileName);
+    } catch {
+      alert("Erro ao enviar PDF do edital.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function handleAttachmentUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url, fileName } = await res.json();
+      setAttachments((prev) => [...prev, { url, fileName }]);
+    } catch {
+      alert("Erro ao enviar anexo.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  function removeAttachment(index: number) {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,6 +90,9 @@ export function EditalForm({ vehicles }: { vehicles: Vehicle[] }) {
         coverageRequired: formData.get("coverageRequired") as string,
         deadline: formData.get("deadline") as string,
         vehicleIds: selectedVehicles,
+        editalPdfUrl: editalPdfUrl || undefined,
+        editalPdfFileName: editalPdfFileName || undefined,
+        attachments: attachments.length > 0 ? attachments : undefined,
       });
       router.push("/editais");
     } catch {
@@ -126,6 +176,55 @@ export function EditalForm({ vehicles }: { vehicles: Vehicle[] }) {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Documentos do Edital</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>PDF do Edital (documento oficial)</Label>
+            <Input
+              type="file"
+              accept=".pdf"
+              onChange={handleEditalPdfUpload}
+              disabled={uploading}
+            />
+            {editalPdfFileName && (
+              <p className="text-sm text-muted-foreground mt-1">
+                <Upload className="inline h-3 w-3 mr-1" />
+                {editalPdfFileName} enviado
+              </p>
+            )}
+          </div>
+          <div>
+            <Label>Anexos (documentos extras)</Label>
+            <Input
+              type="file"
+              accept=".pdf,.doc,.docx,.xls,.xlsx"
+              onChange={handleAttachmentUpload}
+              disabled={uploading}
+            />
+            {attachments.length > 0 && (
+              <div className="mt-2 space-y-1">
+                {attachments.map((att, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Upload className="h-3 w-3" />
+                    <span>{att.fileName}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeAttachment(i)}
+                      className="text-destructive hover:text-destructive/80"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {insuranceType === "Frota" && vehicles.length > 0 && (
         <Card>
           <CardHeader>
@@ -168,7 +267,7 @@ export function EditalForm({ vehicles }: { vehicles: Vehicle[] }) {
         </Card>
       )}
 
-      <Button type="submit" disabled={loading}>
+      <Button type="submit" disabled={loading || uploading}>
         {loading ? "Criando..." : "Criar Edital"}
       </Button>
     </form>

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { proposals } from "@/lib/db/schema";
+import { proposals, tenders } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -47,4 +47,16 @@ export async function selectWinner(proposalId: number, tenderId: number) {
   });
 
   revalidatePath(`/editais/${tenderId}`);
+}
+
+export async function getProposalsByInsurer(insurerId: number) {
+  return db
+    .select({
+      proposal: proposals,
+      tenderTitle: tenders.title,
+      tenderStatus: tenders.status,
+    })
+    .from(proposals)
+    .innerJoin(tenders, eq(proposals.tenderId, tenders.id))
+    .where(eq(proposals.insurerId, insurerId));
 }

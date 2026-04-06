@@ -18,17 +18,16 @@ export default async function HomePage() {
       .from(users)
       .where(eq(users.clerkId, userId));
 
-    const role = user?.role ?? "seguradora";
+    const role = user?.role ?? "corretor";
 
     switch (role) {
-      case "admin":
-      case "corretor":
+      case "diretor":
+      case "analista":
         redirect("/dashboard");
-      case "seguradora":
-        redirect("/s/painel");
+      case "corretor":
+        redirect("/c/painel");
     }
   } catch {
-    // Fallback if DB is unavailable
     redirect("/dashboard");
   }
 }

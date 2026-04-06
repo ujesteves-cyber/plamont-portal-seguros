@@ -11,18 +11,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-export default async function SeguradorasPage() {
-  const insurers = await db
+export default async function CorretorasPage() {
+  const corretoras = await db
     .select()
     .from(users)
-    .where(eq(users.role, "seguradora"));
+    .where(eq(users.role, "corretor"));
 
   return (
     <>
-      <AppHeader title="Seguradoras Cadastradas" />
+      <AppHeader title="Corretoras Cadastradas" />
       <div className="p-6 space-y-4">
         <p className="text-sm text-muted-foreground">
-          {insurers.length} seguradora(s) cadastrada(s). Novas seguradoras se
+          {corretoras.length} corretora(s) cadastrada(s). Novas corretoras se
           cadastram via link público.
         </p>
         <div className="rounded-md border">
@@ -37,23 +37,23 @@ export default async function SeguradorasPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {insurers.map((ins) => (
-                <TableRow key={ins.id}>
-                  <TableCell className="font-medium">{ins.name || "—"}</TableCell>
-                  <TableCell>{ins.email}</TableCell>
-                  <TableCell className="font-mono">{ins.cnpj || "—"}</TableCell>
-                  <TableCell>{ins.companyName || "—"}</TableCell>
+              {corretoras.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-medium">{c.name || "—"}</TableCell>
+                  <TableCell>{c.email}</TableCell>
+                  <TableCell className="font-mono">{c.cnpj || "—"}</TableCell>
+                  <TableCell>{c.companyName || "—"}</TableCell>
                   <TableCell>
-                    {ins.createdAt
-                      ? new Date(ins.createdAt).toLocaleDateString("pt-BR")
+                    {c.createdAt
+                      ? new Date(c.createdAt).toLocaleDateString("pt-BR")
                       : "—"}
                   </TableCell>
                 </TableRow>
               ))}
-              {insurers.length === 0 && (
+              {corretoras.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    Nenhuma seguradora cadastrada.
+                    Nenhuma corretora cadastrada.
                   </TableCell>
                 </TableRow>
               )}

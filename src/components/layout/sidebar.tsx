@@ -8,6 +8,7 @@ import {
   Truck,
   FileText,
   Building2,
+  Send,
 } from "lucide-react";
 import {
   Sidebar,
@@ -21,31 +22,39 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 
-const adminLinks = [
+const diretorLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/frota", label: "Frota", icon: Truck },
   { href: "/editais", label: "Editais", icon: FileText },
-  { href: "/seguradoras", label: "Seguradoras", icon: Building2 },
+  { href: "/corretoras", label: "Corretoras", icon: Building2 },
+];
+
+const analistaLinks = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/frota", label: "Frota", icon: Truck },
+  { href: "/editais", label: "Editais", icon: FileText },
 ];
 
 const corretorLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/editais", label: "Editais", icon: FileText },
-  { href: "/seguradoras", label: "Seguradoras", icon: Building2 },
+  { href: "/c/painel", label: "Painel", icon: LayoutDashboard },
+  { href: "/c/editais", label: "Editais Abertos", icon: FileText },
+  { href: "/c/propostas", label: "Minhas Propostas", icon: Send },
 ];
 
-const insurerLinks = [
-  { href: "/s/painel", label: "Painel", icon: LayoutDashboard },
-  { href: "/s/editais", label: "Editais Abertos", icon: FileText },
-];
-
-export function AppSidebar({ role }: { role: "admin" | "corretor" | "seguradora" }) {
+export function AppSidebar({ role }: { role: "diretor" | "analista" | "corretor" }) {
   const pathname = usePathname();
-  const links = role === "admin"
-    ? adminLinks
-    : role === "corretor"
-      ? corretorLinks
-      : insurerLinks;
+
+  const links = role === "diretor"
+    ? diretorLinks
+    : role === "analista"
+      ? analistaLinks
+      : corretorLinks;
+
+  const roleLabel = role === "diretor"
+    ? "Diretor"
+    : role === "analista"
+      ? "Analista"
+      : "Corretor";
 
   return (
     <Sidebar>
@@ -67,7 +76,7 @@ export function AppSidebar({ role }: { role: "admin" | "corretor" | "seguradora"
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs uppercase tracking-wider px-4 pt-4 pb-2 text-sidebar-foreground/50">
-            Menu
+            {roleLabel}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { redirect, notFound } from "next/navigation";
 import { AppHeader } from "@/components/layout/header";
 import {
   getTenderById,
@@ -20,6 +21,21 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Link from "next/link";
 
+async function getUserRole(clerkId: string) {
+  try {
+    const { db } = await import("@/lib/db");
+    const { users } = await import("@/lib/db/schema");
+    const { eq } = await import("drizzle-orm");
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.clerkId, clerkId));
+    return user?.role ?? "analista";
+  } catch {
+    return "analista";
+  }
+}
+
 export default async function EditalDetailPage({
   params,
 }: {
@@ -29,11 +45,16 @@ export default async function EditalDetailPage({
   const tender = await getTenderById(Number(id));
   if (!tender) notFound();
 
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+  const role = await getUserRole(userId);
+  const isDiretor = role === "diretor";
+
   return (
     <>
       <AppHeader title={tender.title} />
       <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
           <Badge variant="outline" className="text-sm">
             {tender.status}
           </Badge>
@@ -66,7 +87,7 @@ export default async function EditalDetailPage({
                 </Button>
               </form>
             )}
-            {tender.proposals.length > 0 && (
+            {isDiretor && tender.proposals.length > 0 && (
               <Button
                 render={<Link href={`/editais/${id}/comparativo`} />}
                 variant="secondary"
@@ -80,7 +101,7 @@ export default async function EditalDetailPage({
         {tender.description && (
           <Card>
             <CardHeader>
-              <CardTitle>Descricao</CardTitle>
+              <CardTitle>Descrição</CardTitle>
             </CardHeader>
             <CardContent>
               <p>{tender.description}</p>
@@ -91,7 +112,7 @@ export default async function EditalDetailPage({
         {tender.vehicles.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Veiculos ({tender.vehicles.length})</CardTitle>
+              <CardTitle>Veículos ({tender.vehicles.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -109,9 +130,9 @@ export default async function EditalDetailPage({
                       <TableCell className="font-mono">{v.plate}</TableCell>
                       <TableCell>{v.vehicleType}</TableCell>
                       <TableCell>
-                        {v.brand} {v.model}
+                        {[v.brand, v.model].filter(Boolean).join(" ") || "—"}
                       </TableCell>
-                      <TableCell>{v.company}</TableCell>
+                      <TableCell>{v.company || "—"}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -120,61 +141,63 @@ export default async function EditalDetailPage({
           </Card>
         )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Propostas ({tender.proposals.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {tender.proposals.length === 0 ? (
-              <p className="text-muted-foreground">
-                Nenhuma proposta recebida.
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Seguradora</TableHead>
-                    <TableHead>Premio</TableHead>
-                    <TableHead>Franquia</TableHead>
-                    <TableHead>Cobertura</TableHead>
-                    <TableHead>PDF</TableHead>
-                    <TableHead>Enviada em</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {tender.proposals.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="font-medium">
-                        {p.insurerName}
-                      </TableCell>
-                      <TableCell>{p.totalPremium || "—"}</TableCell>
-                      <TableCell>{p.deductible || "—"}</TableCell>
-                      <TableCell>{p.coverageType || "—"}</TableCell>
-                      <TableCell>
-                        <a
-                          href={p.pdfUrl}
-                          target="_blank"
-                          rel="noopener"
-                          className="text-primary underline"
-                        >
-                          {p.pdfFileName || "Download"}
-                        </a>
-                      </TableCell>
-                      <TableCell>
-                        {p.submittedAt &&
-                          format(
-                            new Date(p.submittedAt),
-                            "dd/MM/yyyy HH:mm",
-                            { locale: ptBR }
-                          )}
-                      </TableCell>
+        {isDiretor && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Propostas ({tender.proposals.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tender.proposals.length === 0 ? (
+                <p className="text-muted-foreground">
+                  Nenhuma proposta recebida.
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Corretora</TableHead>
+                      <TableHead>Prêmio</TableHead>
+                      <TableHead>Franquia</TableHead>
+                      <TableHead>Cobertura</TableHead>
+                      <TableHead>PDF</TableHead>
+                      <TableHead>Enviada em</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {tender.proposals.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="font-medium">
+                          {p.insurerName}
+                        </TableCell>
+                        <TableCell>{p.totalPremium || "—"}</TableCell>
+                        <TableCell>{p.deductible || "—"}</TableCell>
+                        <TableCell>{p.coverageType || "—"}</TableCell>
+                        <TableCell>
+                          <a
+                            href={p.pdfUrl}
+                            target="_blank"
+                            rel="noopener"
+                            className="text-primary underline"
+                          >
+                            {p.pdfFileName || "Download"}
+                          </a>
+                        </TableCell>
+                        <TableCell>
+                          {p.submittedAt &&
+                            format(
+                              new Date(p.submittedAt),
+                              "dd/MM/yyyy HH:mm",
+                              { locale: ptBR }
+                            )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </>
   );

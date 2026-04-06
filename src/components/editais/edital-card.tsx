@@ -23,9 +23,15 @@ const statusColors: Record<
   Finalizado: "destructive",
 };
 
-export function EditalCard({ tender }: { tender: Tender }) {
+export function EditalCard({
+  tender,
+  basePath = "/editais",
+}: {
+  tender: Tender;
+  basePath?: string;
+}) {
   return (
-    <Link href={`/editais/${tender.id}`}>
+    <Link href={`${basePath}/${tender.id}`}>
       <Card className="hover:border-primary transition-colors cursor-pointer">
         <CardHeader className="flex flex-row items-start justify-between space-y-0">
           <CardTitle className="text-base">{tender.title}</CardTitle>

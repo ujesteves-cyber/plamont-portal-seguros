@@ -36,9 +36,9 @@ export const insuranceTypeEnum = pgEnum("insurance_type", [
 ]);
 
 export const userRoleEnum = pgEnum("user_role", [
-  "admin",
+  "diretor",
+  "analista",
   "corretor",
-  "seguradora",
 ]);
 
 export const vehicles = pgTable("vehicles", {
@@ -66,7 +66,7 @@ export const users = pgTable("users", {
   clerkId: varchar("clerk_id", { length: 255 }).notNull().unique(),
   email: varchar("email", { length: 255 }).notNull(),
   name: varchar("name", { length: 255 }),
-  role: userRoleEnum("role").notNull().default("seguradora"),
+  role: userRoleEnum("role").notNull().default("corretor"),
   cnpj: varchar("cnpj", { length: 20 }),
   companyName: varchar("company_name", { length: 255 }),
   phone: varchar("phone", { length: 20 }),
@@ -80,6 +80,9 @@ export const tenders = pgTable("tenders", {
   insuranceType: insuranceTypeEnum("insurance_type").notNull(),
   status: tenderStatusEnum("status").notNull().default("Rascunho"),
   coverageRequired: text("coverage_required"),
+  editalPdfUrl: text("edital_pdf_url"),
+  editalPdfFileName: varchar("edital_pdf_file_name", { length: 255 }),
+  attachments: jsonb("attachments"),
   deadline: timestamp("deadline").notNull(),
   createdById: integer("created_by_id").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),

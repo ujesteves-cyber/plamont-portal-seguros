@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { auth } from "@clerk/nextjs/server";
+import { notFound, redirect } from "next/navigation";
 import { AppHeader } from "@/components/layout/header";
 import { getTenderById } from "@/lib/actions/editais";
 import { getComparison, runAiAnalysis } from "@/lib/actions/ai-analysis";
@@ -13,6 +14,23 @@ export default async function ComparativoPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { userId } = await auth();
+  if (!userId) redirect("/sign-in");
+
+  // Only directors can access comparisons
+  try {
+    const { db } = await import("@/lib/db");
+    const { users } = await import("@/lib/db/schema");
+    const { eq } = await import("drizzle-orm");
+    const [user] = await db
+      .select({ role: users.role })
+      .from(users)
+      .where(eq(users.clerkId, userId));
+    if (user?.role !== "diretor") redirect("/editais");
+  } catch {
+    // Allow access if DB is unavailable (dev mode)
+  }
+
   const { id } = await params;
   const tender = await getTenderById(Number(id));
   if (!tender) notFound();

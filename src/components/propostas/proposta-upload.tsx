@@ -56,7 +56,7 @@ export function PropostaUpload({
         coverageType: formData.get("coverageType") as string,
         validity: formData.get("validity") as string,
       });
-      router.push("/s/editais");
+      router.push("/c/editais");
     } catch {
       alert("Erro ao enviar proposta. Tente novamente.");
     } finally {
