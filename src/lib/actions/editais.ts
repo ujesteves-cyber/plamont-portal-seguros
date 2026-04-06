@@ -41,6 +41,7 @@ export async function createTender(data: {
   }
 
   revalidatePath("/editais");
+  revalidatePath("/s/editais");
   return tender;
 }
 
@@ -61,7 +62,7 @@ export async function getTenderById(id: number) {
   const tenderProposals = await db
     .select({ proposal: proposals, insurer: users })
     .from(proposals)
-    .innerJoin(users, eq(proposals.insurerId, users.id))
+    .leftJoin(users, eq(proposals.insurerId, users.id))
     .where(eq(proposals.tenderId, id));
 
   return {
@@ -69,7 +70,7 @@ export async function getTenderById(id: number) {
     vehicles: linkedVehicles.map((r) => r.vehicle),
     proposals: tenderProposals.map((r) => ({
       ...r.proposal,
-      insurerName: r.insurer.companyName || r.insurer.name,
+      insurerName: r.insurer?.companyName || r.insurer?.name || "Seguradora",
     })),
   };
 }
@@ -81,6 +82,7 @@ export async function publishTender(id: number) {
     .where(eq(tenders.id, id));
   revalidatePath(`/editais/${id}`);
   revalidatePath("/editais");
+  revalidatePath("/s/editais");
 }
 
 export async function closeTender(id: number) {
@@ -90,4 +92,5 @@ export async function closeTender(id: number) {
     .where(eq(tenders.id, id));
   revalidatePath(`/editais/${id}`);
   revalidatePath("/editais");
+  revalidatePath("/s/editais");
 }

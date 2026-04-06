@@ -35,16 +35,21 @@ export function EditalForm({ vehicles }: { vehicles: Vehicle[] }) {
     setLoading(true);
     const formData = new FormData(e.currentTarget);
 
-    await createTender({
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      insuranceType,
-      coverageRequired: formData.get("coverageRequired") as string,
-      deadline: formData.get("deadline") as string,
-      vehicleIds: selectedVehicles,
-    });
-
-    router.push("/editais");
+    try {
+      await createTender({
+        title: formData.get("title") as string,
+        description: formData.get("description") as string,
+        insuranceType,
+        coverageRequired: formData.get("coverageRequired") as string,
+        deadline: formData.get("deadline") as string,
+        vehicleIds: selectedVehicles,
+      });
+      router.push("/editais");
+    } catch {
+      alert("Erro ao criar edital. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function toggleVehicle(id: number) {

@@ -61,7 +61,7 @@ export function FrotaTable({ vehicles }: { vehicles: Vehicle[] }) {
                   <Badge variant="outline">{v.category}</Badge>
                 </TableCell>
                 <TableCell>
-                  {v.brand} {v.model}
+                  {[v.brand, v.model].filter(Boolean).join(" ") || "—"}
                 </TableCell>
                 <TableCell>{v.company}</TableCell>
                 <TableCell>{v.currentInsurer || "\u2014"}</TableCell>
@@ -74,11 +74,15 @@ export function FrotaTable({ vehicles }: { vehicles: Vehicle[] }) {
                     : "\u2014"}
                 </TableCell>
                 <TableCell>
-                  <Badge
-                    variant={v.status === "VENDIDO" ? "secondary" : "default"}
-                  >
-                    {v.status}
-                  </Badge>
+                  {v.status ? (
+                    <Badge
+                      variant={v.status === "VENDIDO" ? "secondary" : "default"}
+                    >
+                      {v.status}
+                    </Badge>
+                  ) : (
+                    "—"
+                  )}
                 </TableCell>
               </TableRow>
             ))

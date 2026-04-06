@@ -28,10 +28,15 @@ export function PropostaUpload({
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("/api/upload", { method: "POST", body: formData });
-    const { url, fileName } = await res.json();
-    setPdfUrl(url);
-    setPdfFileName(fileName);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      const { url, fileName } = await res.json();
+      setPdfUrl(url);
+      setPdfFileName(fileName);
+    } catch {
+      alert("Erro ao enviar arquivo. Tente novamente.");
+    }
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -39,19 +44,24 @@ export function PropostaUpload({
     if (!pdfUrl) return;
     setLoading(true);
 
-    const formData = new FormData(e.currentTarget);
-    await submitProposal({
-      tenderId,
-      insurerId,
-      pdfUrl,
-      pdfFileName,
-      totalPremium: formData.get("totalPremium") as string,
-      deductible: formData.get("deductible") as string,
-      coverageType: formData.get("coverageType") as string,
-      validity: formData.get("validity") as string,
-    });
-
-    router.push("/s/editais");
+    try {
+      const formData = new FormData(e.currentTarget);
+      await submitProposal({
+        tenderId,
+        insurerId,
+        pdfUrl,
+        pdfFileName,
+        totalPremium: formData.get("totalPremium") as string,
+        deductible: formData.get("deductible") as string,
+        coverageType: formData.get("coverageType") as string,
+        validity: formData.get("validity") as string,
+      });
+      router.push("/s/editais");
+    } catch {
+      alert("Erro ao enviar proposta. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

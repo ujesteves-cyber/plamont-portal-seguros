@@ -52,7 +52,7 @@ export default async function ComparativoPage({
                   <Brain className="h-5 w-5" />
                   Análise Comparativa
                   <Badge variant="outline" className="ml-2">
-                    {(comparison.comparisonData as any[]).length} propostas
+                    {Array.isArray(comparison.comparisonData) ? comparison.comparisonData.length : 0} propostas
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -63,53 +63,61 @@ export default async function ComparativoPage({
               </CardContent>
             </Card>
 
-            {(comparison.comparisonData as any[]).map((item: any, i: number) => (
+            {Array.isArray(comparison.comparisonData) && comparison.comparisonData.map((item: any, i: number) => (
               <Card key={i}>
                 <CardHeader>
-                  <CardTitle>{item.insurerName}</CardTitle>
+                  <CardTitle>{item.insurerName || "Proposta"}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Prêmio:</span>{" "}
-                      <span className="font-medium">{item.analysis.totalPremium}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Franquia:</span>{" "}
-                      <span className="font-medium">{item.analysis.deductible}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Vigência:</span>{" "}
-                      <span className="font-medium">{item.analysis.validity}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-1">Coberturas:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {item.analysis.coverages?.map((c: string, j: number) => (
-                        <Badge key={j} variant="secondary">{c}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                  {item.analysis.strengths?.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-green-500 mb-1">Pontos fortes:</p>
-                      <ul className="text-sm list-disc list-inside">
-                        {item.analysis.strengths.map((s: string, j: number) => (
-                          <li key={j}>{s}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {item.analysis.weaknesses?.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-red-500 mb-1">Pontos fracos:</p>
-                      <ul className="text-sm list-disc list-inside">
-                        {item.analysis.weaknesses.map((w: string, j: number) => (
-                          <li key={j}>{w}</li>
-                        ))}
-                      </ul>
-                    </div>
+                  {item.analysis ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Prêmio:</span>{" "}
+                          <span className="font-medium">{item.analysis.totalPremium || "—"}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Franquia:</span>{" "}
+                          <span className="font-medium">{item.analysis.deductible || "—"}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Vigência:</span>{" "}
+                          <span className="font-medium">{item.analysis.validity || "—"}</span>
+                        </div>
+                      </div>
+                      {item.analysis.coverages?.length > 0 && (
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">Coberturas:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {item.analysis.coverages.map((c: string, j: number) => (
+                              <Badge key={j} variant="secondary">{c}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {item.analysis.strengths?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-green-500 mb-1">Pontos fortes:</p>
+                          <ul className="text-sm list-disc list-inside">
+                            {item.analysis.strengths.map((s: string, j: number) => (
+                              <li key={j}>{s}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {item.analysis.weaknesses?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-red-500 mb-1">Pontos fracos:</p>
+                          <ul className="text-sm list-disc list-inside">
+                            {item.analysis.weaknesses.map((w: string, j: number) => (
+                              <li key={j}>{w}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Análise não disponível para esta proposta.</p>
                   )}
                 </CardContent>
               </Card>

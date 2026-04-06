@@ -15,7 +15,7 @@ export function FrotaFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  function updateFilter(key: string, value: string) {
+  function updateFilter(key: string, value: string | null) {
     const params = new URLSearchParams(searchParams.toString());
     if (value && value !== "all") {
       params.set(key, value);
@@ -34,9 +34,8 @@ export function FrotaFilters() {
         className="w-[200px]"
       />
       <Select
-        defaultValue="all"
         value={searchParams.get("category") || "all"}
-        onValueChange={(v) => updateFilter("category", v ?? "all")}
+        onValueChange={(v) => updateFilter("category", v)}
       >
         <SelectTrigger className="w-[220px]">
           <SelectValue placeholder="Categoria" />
@@ -51,9 +50,8 @@ export function FrotaFilters() {
         </SelectContent>
       </Select>
       <Select
-        defaultValue="all"
         value={searchParams.get("company") || "all"}
-        onValueChange={(v) => updateFilter("company", v ?? "all")}
+        onValueChange={(v) => updateFilter("company", v)}
       >
         <SelectTrigger className="w-[200px]">
           <SelectValue placeholder="Empresa" />

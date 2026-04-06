@@ -34,17 +34,17 @@ export async function submitProposal(data: {
 }
 
 export async function selectWinner(proposalId: number, tenderId: number) {
-  // Reset all proposals for this tender
-  await db
-    .update(proposals)
-    .set({ isWinner: false })
-    .where(eq(proposals.tenderId, tenderId));
+  await db.transaction(async (tx) => {
+    await tx
+      .update(proposals)
+      .set({ isWinner: false })
+      .where(eq(proposals.tenderId, tenderId));
 
-  // Set winner
-  await db
-    .update(proposals)
-    .set({ isWinner: true })
-    .where(eq(proposals.id, proposalId));
+    await tx
+      .update(proposals)
+      .set({ isWinner: true })
+      .where(eq(proposals.id, proposalId));
+  });
 
   revalidatePath(`/editais/${tenderId}`);
 }
