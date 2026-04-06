@@ -2,6 +2,8 @@ import { AppHeader } from "@/components/layout/header";
 import { EditalCard } from "@/components/editais/edital-card";
 import { getTenders } from "@/lib/actions/editais";
 
+export const dynamic = 'force-dynamic';
+
 export default async function CorretorEditaisPage() {
   const tenders = await getTenders();
   const openTenders = tenders.filter((t) => t.status === "Aberto");

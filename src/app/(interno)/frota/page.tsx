@@ -7,6 +7,8 @@ import { getVehicles } from "@/lib/actions/frota";
 import Link from "next/link";
 import { Upload } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function FrotaPage({
   searchParams,
 }: {

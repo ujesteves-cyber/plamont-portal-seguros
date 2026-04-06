@@ -5,6 +5,8 @@ import { getTenders } from "@/lib/actions/editais";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
+export const dynamic = 'force-dynamic';
+
 export default async function EditaisPage() {
   const tenders = await getTenders();
 
