@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill //F //IM node.exe)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(mv \"src/app/\\(seguradora\\)/editais/page.tsx\" \"src/app/\\(seguradora\\)/s/editais/page.tsx\")",
+      "Bash(mv \"src/app/\\(seguradora\\)/editais/[id]/proposta/page.tsx\" \"src/app/\\(seguradora\\)/s/editais/[id]/proposta/page.tsx\")",
+      "Bash(mv \"src/app/\\(seguradora\\)/painel/page.tsx\" \"src/app/\\(seguradora\\)/s/painel/page.tsx\")",
+      "Bash(mv \"src/app/\\(corretor\\)/painel/page.tsx\" \"src/app/\\(corretor\\)/c/painel/page.tsx\")",
+      "WebFetch(domain:www.plamont.com.br)",
+      "Bash(curl -sL -o public/logo-plamont.png \"https://www.plamont.com.br/wp-content/uploads/2020/05/Logo-25-anos-Plamont.png\")"
+    ]
+  }
+}

@@ -1,8 +1,5 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { getSessionUser } from "@/lib/auth";
 import { AppHeader } from "@/components/layout/header";
 import { getProposalsByInsurer } from "@/lib/actions/propostas";
 import { Badge } from "@/components/ui/badge";
@@ -12,15 +9,8 @@ import { FileText, CheckCircle, Clock, Send } from "lucide-react";
 export const dynamic = 'force-dynamic';
 
 export default async function MinhasPropostasPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-
-  const [user] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.clerkId, userId));
-
-  if (!user) redirect("/sign-in");
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
 
   const results = await getProposalsByInsurer(user.id);
 

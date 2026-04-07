@@ -63,9 +63,9 @@ export const vehicles = pgTable("vehicles", {
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  clerkId: varchar("clerk_id", { length: 255 }).notNull().unique(),
-  email: varchar("email", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   role: userRoleEnum("role").notNull().default("corretor"),
   isApproved: boolean("is_approved").notNull().default(false),
   cnpj: varchar("cnpj", { length: 20 }),

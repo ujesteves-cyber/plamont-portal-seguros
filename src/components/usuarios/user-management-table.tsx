@@ -23,7 +23,7 @@ import { approveUser, rejectUser, updateUserRole, revokeUser } from "@/lib/actio
 
 type User = {
   id: number;
-  clerkId: string;
+  passwordHash: string;
   email: string;
   name: string | null;
   role: string | null;

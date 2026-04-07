@@ -1,26 +1,17 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { SignOutButton } from "@clerk/nextjs";
+import { getSessionUser } from "@/lib/auth";
+import { logoutAction } from "@/lib/actions/auth";
 import { Clock, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
 export default async function AguardandoAprovacaoPage() {
-  const { userId } = await auth();
+  const user = await getSessionUser();
 
-  if (!userId) redirect("/sign-in");
+  if (!user) redirect("/login");
 
-  const [user] = await db
-    .select({ isApproved: users.isApproved, role: users.role })
-    .from(users)
-    .where(eq(users.clerkId, userId));
-
-  // If user is approved, redirect to the correct area
-  if (user?.isApproved) {
+  if (user.isApproved) {
     switch (user.role) {
       case "diretor":
       case "analista":
@@ -49,12 +40,12 @@ export default async function AguardandoAprovacaoPage() {
             administrador do sistema.
           </p>
         </div>
-        <SignOutButton>
-          <Button variant="outline" className="gap-2">
+        <form action={logoutAction}>
+          <Button variant="outline" className="gap-2" type="submit">
             <LogOut className="h-4 w-4" />
             Sair
           </Button>
-        </SignOutButton>
+        </form>
       </div>
     </div>
   );

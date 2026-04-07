@@ -1,24 +1,16 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getSessionUser } from "@/lib/auth";
 
 async function requireDiretor() {
-  const { userId } = await auth();
-  if (!userId) throw new Error("Não autenticado");
-
-  const [user] = await db
-    .select({ id: users.id, role: users.role, isApproved: users.isApproved })
-    .from(users)
-    .where(and(eq(users.clerkId, userId), eq(users.isApproved, true)));
-
-  if (!user || user.role !== "diretor") {
+  const user = await getSessionUser();
+  if (!user || !user.isApproved || user.role !== "diretor") {
     throw new Error("Acesso negado: apenas diretores");
   }
-
   return user;
 }
 

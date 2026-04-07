@@ -1,25 +1,16 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { AppHeader } from "@/components/layout/header";
 import { UserManagementTable } from "@/components/usuarios/user-management-table";
 
 export const dynamic = "force-dynamic";
 
 export default async function UsuariosPage() {
-  const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
-
-  const [currentUser] = await db
-    .select({ role: users.role })
-    .from(users)
-    .where(eq(users.clerkId, userId));
-
-  if (!currentUser || currentUser.role !== "diretor") {
-    redirect("/dashboard");
-  }
+  const currentUser = await getSessionUser();
+  if (!currentUser) redirect("/login");
+  if (currentUser.role !== "diretor") redirect("/dashboard");
 
   const allUsers = await db.select().from(users);
 

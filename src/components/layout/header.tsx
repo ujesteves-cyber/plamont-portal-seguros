@@ -1,6 +1,6 @@
-import { UserButton } from "@clerk/nextjs";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { LogoutButton } from "./logout-button";
 
 export function AppHeader({ title }: { title: string }) {
   return (
@@ -9,7 +9,7 @@ export function AppHeader({ title }: { title: string }) {
       <Separator orientation="vertical" className="h-6" />
       <h1 className="text-lg font-semibold">{title}</h1>
       <div className="ml-auto">
-        <UserButton />
+        <LogoutButton />
       </div>
     </header>
   );
