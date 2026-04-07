@@ -92,26 +92,32 @@ export default async function DashboardPage() {
     .limit(6);
 
   // Vehicles by real status (calculated from expiry date)
-  const vehiclesByStatus = await db
+  const allVehicles = await db
     .select({
-      status: sql<string>`CASE
-        WHEN ${vehicles.status} = 'VENDIDO' THEN 'VENDIDO'
-        WHEN ${vehicles.policyExpiry} IS NULL THEN COALESCE(${vehicles.status}, 'SEM APÓLICE')
-        WHEN ${vehicles.policyExpiry} < ${now.toISOString()}::timestamp THEN 'VENCIDO'
-        WHEN ${vehicles.policyExpiry} <= ${thirtyDays.toISOString()}::timestamp THEN 'A VENCER (30 dias)'
-        ELSE 'VIGENTE'
-      END`.as("status"),
-      total: count(),
+      status: vehicles.status,
+      policyExpiry: vehicles.policyExpiry,
     })
-    .from(vehicles)
-    .groupBy(sql`CASE
-      WHEN ${vehicles.status} = 'VENDIDO' THEN 'VENDIDO'
-      WHEN ${vehicles.policyExpiry} IS NULL THEN COALESCE(${vehicles.status}, 'SEM APÓLICE')
-      WHEN ${vehicles.policyExpiry} < ${now.toISOString()}::timestamp THEN 'VENCIDO'
-      WHEN ${vehicles.policyExpiry} <= ${thirtyDays.toISOString()}::timestamp THEN 'A VENCER (30 dias)'
-      ELSE 'VIGENTE'
-    END`)
-    .orderBy(sql`count(*) DESC`);
+    .from(vehicles);
+
+  const statusCounts: Record<string, number> = {};
+  for (const v of allVehicles) {
+    let s: string;
+    if (v.status === "VENDIDO") {
+      s = "VENDIDO";
+    } else if (!v.policyExpiry) {
+      s = v.status || "SEM APÓLICE";
+    } else if (new Date(v.policyExpiry) < now) {
+      s = "VENCIDO";
+    } else if (new Date(v.policyExpiry) <= thirtyDays) {
+      s = "A VENCER (30 dias)";
+    } else {
+      s = "VIGENTE";
+    }
+    statusCounts[s] = (statusCounts[s] || 0) + 1;
+  }
+  const vehiclesByStatus = Object.entries(statusCounts)
+    .map(([status, total]) => ({ status, total }))
+    .sort((a, b) => b.total - a.total);
 
   return (
     <>
