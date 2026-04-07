@@ -5,7 +5,7 @@ const SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "plamont-portal-seguros-secret-key-2024"
 );
 
-const publicPaths = ["/login", "/cadastro", "/api/webhooks"];
+const publicPaths = ["/login", "/cadastro", "/api/"];
 
 export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
