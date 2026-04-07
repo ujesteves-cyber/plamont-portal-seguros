@@ -160,11 +160,19 @@ export function FrotaTable({ vehicles }: { vehicles: Vehicle[] }) {
                       : "—"}
                   </TableCell>
                   <TableCell>
-                    {v.status ? (
-                      <Badge variant={v.status === "VENDIDO" ? "secondary" : "default"}>
-                        {v.status}
-                      </Badge>
-                    ) : "—"}
+                    {(() => {
+                      const isExpired = v.policyExpiry && new Date(v.policyExpiry) < new Date();
+                      const displayStatus = isExpired ? "VENCIDO" : (v.status || "—");
+                      if (displayStatus === "—") return "—";
+                      return (
+                        <Badge
+                          variant={displayStatus === "VENDIDO" ? "secondary" : "default"}
+                          className={isExpired ? "bg-red-600 hover:bg-red-700 text-white" : ""}
+                        >
+                          {displayStatus}
+                        </Badge>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell>{v.broker || "—"}</TableCell>
                   <TableCell className="text-right space-x-1">
