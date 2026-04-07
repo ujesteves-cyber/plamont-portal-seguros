@@ -14,10 +14,16 @@ export async function loginAction(formData: FormData) {
     return { error: "Preencha todos os campos." };
   }
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email.toLowerCase().trim()));
+  let user;
+  try {
+    const results = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email.toLowerCase().trim()));
+    user = results[0];
+  } catch (err: any) {
+    return { error: `Erro de conexão: ${err?.message || "desconhecido"}` };
+  }
 
   if (!user) {
     return { error: "Email ou senha inválidos." };
