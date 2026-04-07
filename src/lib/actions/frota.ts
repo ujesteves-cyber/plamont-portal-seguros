@@ -48,25 +48,43 @@ export async function importVehiclesFromData(
     notes: string;
   }>
 ) {
-  const rows = data.map((row) => ({
-    numberRef: row.numberRef,
-    plate: row.plate,
-    vehicleType: row.vehicleType,
-    category: (VEHICLE_TYPE_TO_CATEGORY[row.vehicleType.toUpperCase()] ||
-      "Equipamentos Especiais") as any,
-    brand: row.brand,
-    model: row.model,
-    company: row.company,
-    currentInsurer: row.insurer,
-    currentPolicy: row.policy,
-    currentCoverage: row.coverage,
-    policyExpiry: row.expiry ? new Date(row.expiry) : null,
-    status: row.status,
-    broker: row.broker,
-    notes: row.notes,
-  }));
+  function parseDate(str: string | null): Date | null {
+    if (!str) return null;
+    // Handle DD/MM/YYYY format
+    const parts = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (parts) {
+      return new Date(Number(parts[3]), Number(parts[2]) - 1, Number(parts[1]));
+    }
+    const d = new Date(str);
+    return isNaN(d.getTime()) ? null : d;
+  }
 
-  await db.insert(vehicles).values(rows);
+  const rows = data
+    .filter((row) => row.plate && row.plate.trim() !== "")
+    .map((row) => ({
+      numberRef: row.numberRef || null,
+      plate: row.plate.trim(),
+      vehicleType: row.vehicleType || "Outros",
+      category: (VEHICLE_TYPE_TO_CATEGORY[row.vehicleType?.toUpperCase()] ||
+        "Equipamentos Especiais") as any,
+      brand: row.brand || null,
+      model: row.model || null,
+      company: row.company || null,
+      currentInsurer: row.insurer || null,
+      currentPolicy: row.policy || null,
+      currentCoverage: row.coverage || null,
+      policyExpiry: parseDate(row.expiry),
+      status: row.status || "A VENCER",
+      broker: row.broker || null,
+      notes: row.notes || null,
+    }));
+
+  if (rows.length === 0) return { count: 0 };
+
+  // Insert in batches of 50 to avoid query size limits
+  for (let i = 0; i < rows.length; i += 50) {
+    await db.insert(vehicles).values(rows.slice(i, i + 50));
+  }
   return { count: rows.length };
 }
 

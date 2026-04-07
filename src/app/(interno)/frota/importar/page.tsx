@@ -50,8 +50,8 @@ export default function ImportarPage() {
       const { count } = await importVehiclesFromData(mapped);
       setResult(`${count} veículos importados com sucesso!`);
       setTimeout(() => router.push("/frota"), 2000);
-    } catch {
-      setResult("Erro ao importar. Verifique o formato da planilha.");
+    } catch (err: any) {
+      setResult(`Erro ao importar: ${err?.message || "Verifique o formato da planilha."}`);
     } finally {
       setLoading(false);
     }
