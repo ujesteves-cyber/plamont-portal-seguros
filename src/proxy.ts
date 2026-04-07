@@ -7,7 +7,7 @@ const SECRET = new TextEncoder().encode(
 
 const publicPaths = ["/login", "/cadastro", "/api/webhooks"];
 
-export async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Allow public paths and static assets
