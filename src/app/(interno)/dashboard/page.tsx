@@ -91,14 +91,26 @@ export default async function DashboardPage() {
     .orderBy(sql`count(*) DESC`)
     .limit(6);
 
-  // Vehicles by status
+  // Vehicles by real status (calculated from expiry date)
   const vehiclesByStatus = await db
     .select({
-      status: vehicles.status,
+      status: sql<string>`CASE
+        WHEN ${vehicles.status} = 'VENDIDO' THEN 'VENDIDO'
+        WHEN ${vehicles.policyExpiry} IS NULL THEN COALESCE(${vehicles.status}, 'SEM APÓLICE')
+        WHEN ${vehicles.policyExpiry} < ${now.toISOString()}::timestamp THEN 'VENCIDO'
+        WHEN ${vehicles.policyExpiry} <= ${thirtyDays.toISOString()}::timestamp THEN 'A VENCER (30 dias)'
+        ELSE 'VIGENTE'
+      END`.as("status"),
       total: count(),
     })
     .from(vehicles)
-    .groupBy(vehicles.status)
+    .groupBy(sql`CASE
+      WHEN ${vehicles.status} = 'VENDIDO' THEN 'VENDIDO'
+      WHEN ${vehicles.policyExpiry} IS NULL THEN COALESCE(${vehicles.status}, 'SEM APÓLICE')
+      WHEN ${vehicles.policyExpiry} < ${now.toISOString()}::timestamp THEN 'VENCIDO'
+      WHEN ${vehicles.policyExpiry} <= ${thirtyDays.toISOString()}::timestamp THEN 'A VENCER (30 dias)'
+      ELSE 'VIGENTE'
+    END`)
     .orderBy(sql`count(*) DESC`);
 
   return (
@@ -243,15 +255,27 @@ export default async function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-3">
-                {vehiclesByStatus.map((item) => (
-                  <div
-                    key={item.status || "sem"}
-                    className="flex items-center gap-2 rounded-lg border px-4 py-2"
-                  >
-                    <span className="text-sm font-medium">{item.status || "Sem status"}</span>
-                    <Badge>{item.total}</Badge>
-                  </div>
-                ))}
+                {vehiclesByStatus.map((item) => {
+                  const s = item.status || "Sem status";
+                  const color = s === "VENCIDO"
+                    ? "bg-red-100 border-red-300 text-red-800"
+                    : s.includes("30 dias")
+                    ? "bg-amber-100 border-amber-300 text-amber-800"
+                    : s === "VIGENTE"
+                    ? "bg-green-100 border-green-300 text-green-800"
+                    : s === "VENDIDO"
+                    ? "bg-gray-100 border-gray-300 text-gray-600"
+                    : "bg-background";
+                  return (
+                    <div
+                      key={s}
+                      className={`flex items-center gap-2 rounded-lg border px-4 py-3 ${color}`}
+                    >
+                      <span className="text-sm font-semibold">{s}</span>
+                      <span className="text-lg font-bold">{item.total}</span>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
