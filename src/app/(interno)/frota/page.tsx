@@ -5,7 +5,7 @@ import { FrotaFilters } from "@/components/frota/frota-filters";
 import { Button } from "@/components/ui/button";
 import { getVehicles } from "@/lib/actions/frota";
 import Link from "next/link";
-import { Upload } from "lucide-react";
+import { Upload, Plus } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -29,10 +29,16 @@ export default async function FrotaPage({
           <Suspense>
             <FrotaFilters />
           </Suspense>
-          <Button render={<Link href="/frota/importar" />}>
-            <Upload className="mr-2 h-4 w-4" />
-            Importar Planilha
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" render={<Link href="/frota/adicionar" />}>
+              <Plus className="mr-2 h-4 w-4" />
+              Adicionar
+            </Button>
+            <Button render={<Link href="/frota/importar" />}>
+              <Upload className="mr-2 h-4 w-4" />
+              Importar Planilha
+            </Button>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           {vehicles.length} veículo(s) encontrado(s)
