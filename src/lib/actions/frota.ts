@@ -69,3 +69,36 @@ export async function importVehiclesFromData(
   await db.insert(vehicles).values(rows);
   return { count: rows.length };
 }
+
+export async function deleteVehicle(id: number) {
+  await db.delete(vehicles).where(eq(vehicles.id, id));
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/frota");
+}
+
+export async function updateVehicle(
+  id: number,
+  data: {
+    plate?: string;
+    vehicleType?: string;
+    brand?: string;
+    model?: string;
+    company?: string;
+    currentInsurer?: string;
+    currentPolicy?: string;
+    currentCoverage?: string;
+    status?: string;
+    broker?: string;
+    notes?: string;
+  }
+) {
+  await db.update(vehicles).set(data).where(eq(vehicles.id, id));
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/frota");
+}
+
+export async function deleteAllVehicles() {
+  await db.delete(vehicles);
+  const { revalidatePath } = await import("next/cache");
+  revalidatePath("/frota");
+}

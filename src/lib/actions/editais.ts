@@ -98,5 +98,29 @@ export async function closeTender(id: number) {
     .where(eq(tenders.id, id));
   revalidatePath(`/editais/${id}`);
   revalidatePath("/editais");
-  revalidatePath("/s/editais");
+  revalidatePath("/c/editais");
+}
+
+export async function deleteTender(id: number) {
+  await db.delete(tenders).where(eq(tenders.id, id));
+  revalidatePath("/editais");
+  revalidatePath("/c/editais");
+}
+
+export async function updateTender(
+  id: number,
+  data: {
+    title?: string;
+    description?: string;
+    insuranceType?: string;
+    coverageRequired?: string;
+    deadline?: Date;
+  }
+) {
+  await db
+    .update(tenders)
+    .set({ ...data, updatedAt: new Date() } as any)
+    .where(eq(tenders.id, id));
+  revalidatePath(`/editais/${id}`);
+  revalidatePath("/editais");
 }

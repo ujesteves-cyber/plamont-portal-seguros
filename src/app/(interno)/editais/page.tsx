@@ -28,7 +28,7 @@ export default async function EditaisPage() {
         ) : (
           <div className="grid gap-4">
             {tenders.map((t) => (
-              <EditalCard key={t.id} tender={t} />
+              <EditalCard key={t.id} tender={t} showDelete />
             ))}
           </div>
         )}

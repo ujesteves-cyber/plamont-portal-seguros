@@ -35,11 +35,10 @@ export default function CadastroPage() {
       <div className="w-full max-w-md space-y-6 p-8">
         <div className="flex flex-col items-center gap-3">
           <Image
-            src="/logo-plamont.png"
+            src="/logo-plamont.svg"
             alt="Plamont Engenharia"
-            width={60}
-            height={60}
-            className="rounded"
+            width={200}
+            height={50}
           />
           <h1 className="text-xl font-bold text-foreground">Cadastro</h1>
           <p className="text-sm text-muted-foreground">

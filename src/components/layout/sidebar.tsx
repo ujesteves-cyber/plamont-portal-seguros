@@ -61,18 +61,13 @@ export function AppSidebar({ role }: { role: "diretor" | "analista" | "corretor"
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-5 border-b border-sidebar-border">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/">
           <Image
-            src="/logo-plamont.png"
-            alt="Plamont Engenharia"
-            width={40}
-            height={40}
-            className="rounded"
+            src="/logo-plamont.svg"
+            alt="Plamont Engenharia - Portal de Seguros"
+            width={180}
+            height={45}
           />
-          <div className="flex flex-col">
-            <span className="text-sm font-bold text-sidebar-foreground leading-tight">Plamont</span>
-            <span className="text-xs text-sidebar-foreground/60 leading-tight">Portal de Seguros</span>
-          </div>
         </Link>
       </SidebarHeader>
       <SidebarContent>

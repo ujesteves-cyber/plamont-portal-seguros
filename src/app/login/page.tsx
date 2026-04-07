@@ -37,11 +37,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm space-y-6 p-8">
         <div className="flex flex-col items-center gap-3">
           <Image
-            src="/logo-plamont.png"
+            src="/logo-plamont.svg"
             alt="Plamont Engenharia"
-            width={60}
-            height={60}
-            className="rounded"
+            width={200}
+            height={50}
           />
           <h1 className="text-xl font-bold text-foreground">Portal de Seguros</h1>
           <p className="text-sm text-muted-foreground">Entre com suas credenciais</p>
