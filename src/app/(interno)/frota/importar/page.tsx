@@ -47,11 +47,19 @@ export default function ImportarPage() {
         notes: String(row["OBS"] || ""),
       }));
 
-      const { count } = await importVehiclesFromData(mapped);
-      setResult(`${count} veículos importados com sucesso!`);
+      // Send in chunks of 50 to avoid payload size limits
+      let total = 0;
+      for (let i = 0; i < mapped.length; i += 50) {
+        const chunk = mapped.slice(i, i + 50);
+        const { count } = await importVehiclesFromData(chunk);
+        total += count;
+        setResult(`Importando... ${total}/${mapped.length}`);
+      }
+      setResult(`${total} veículos importados com sucesso!`);
       setTimeout(() => router.push("/frota"), 2000);
     } catch (err: any) {
-      setResult(`Erro ao importar: ${err?.message || "Verifique o formato da planilha."}`);
+      console.error("Import error:", err);
+      setResult(`Erro ao importar: ${err?.message || String(err) || "Verifique o formato da planilha."}`);
     } finally {
       setLoading(false);
     }
